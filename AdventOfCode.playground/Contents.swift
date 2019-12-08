@@ -16,15 +16,56 @@ extension String {
         guard let first = self.first, let number = Int(String(self.dropFirst(1))) else { return nil }
         
         switch first {
-            case "R": return (axe: Axes.x, number)
-            case "L": return (axe: Axes.x, number)
-            case "U": return (axe: Axes.x, number)
-            case "D": return (axe: Axes.x, number)
-            default: return nil
+        case "R": return (axe: Axes.x, number)
+        case "L": return (axe: Axes.x, -number)
+        case "U": return (axe: Axes.y, number)
+        case "D": return (axe: Axes.y, -number)
+        default: return nil
         }
     }
 }
 
-let result = firstWire.compactMap { $0.direction }
-print(result)
+// Step 2 : Faire une boucle sur le puzzle pour transformer les deux wires en tableaux de Direction
 
+let firstWireDirections = firstWire.compactMap { $0.direction }
+let secondWireDirections = secondWire.compactMap { $0.direction }
+
+extension Array where Element == Direction {
+    func coordinates() -> [(Int, Int)] {
+        var x = 0
+        var y = 0
+        return self.reduce(into: [(Int, Int)]()) {
+            if $1.axe == .x {
+                x += $1.value
+            } else {
+                y += $1.value
+            }
+            
+            $0.append((x,y))
+        }
+    }
+}
+
+var firstCoordinates = firstWireDirections.coordinates()
+var secondCoordinates = secondWireDirections.coordinates()
+
+var sameCoordinate = firstCoordinates.compactMap { (firstElement) -> (Int, Int)? in
+    if secondCoordinates.contains(where: {
+        $0.0 == firstElement.0 && $0.1 == firstElement.1
+    }) {
+        return firstElement
+    }
+    return nil
+}
+
+
+let distances = sameCoordinate.map {
+    $0.0 + $0.1
+}
+print(distances.min())
+
+// Step 3 : Pour chaque tableau de wires, générer un tableau de coordonnées (x,y) en partant de l'origine (0,0)
+
+// Step 4 : Faire une comparaison des deux tableaux de coordonnées et en ressortir les égalités
+
+// Step 5 : Choisir l'égalité (x + Y) la plus petite
